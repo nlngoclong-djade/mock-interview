@@ -24,10 +24,10 @@ git push -u origin attempt/02
 Before starting the timer, verify the project:
 
 ```bash
-dotnet run --project tests/LegacyStore.Tests
+dotnet test tests/LegacyStore.Tests
 ```
 
-All checks should print `PASS`. Do not inspect or modify the source before creating the start commit.
+All tests must pass. Do not inspect or modify the source before creating the start commit.
 
 ## Start
 
