@@ -4,14 +4,30 @@ namespace LegacyPayments.Implementation;
 public sealed class InMemoryPaymentDataStore : IPaymentDataStore
 {
     private readonly Dictionary<string, Payment> _payments = new();
-
+    private readonly LruCache<string, Payment>  _cache = new(10);
     public int LoadCount { get; private set; }
     public int SaveCount { get; private set; }
 
     public Payment? Load(string id)
     {
         LoadCount++;
-        return _payments.TryGetValue(id, out var payment) ? Copy(payment) : null;
+        var key = "payment-" + id;
+        if (!_cache.TryGet(key, out var cacheValue))
+        {
+            if (_payments.TryGetValue(id, out var payment))
+            {
+                _cache.Put(key, Copy(payment));
+                return _cache.TryGet(key, out var result) ? result : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return cacheValue;
+        }
     }
 
     public void Save(Payment payment)
