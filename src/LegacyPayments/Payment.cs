@@ -7,8 +7,9 @@ public sealed class Payment
     public decimal Amount { get; set; }
     public string Currency { get; set; } = "";
     public string Status { get; set; } = "";
-    public decimal Fee { get; set; }
+    public decimal ProcessingFee { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
+    public List<string> AuditTrail { get; set; } = new();
 }
 
 public sealed record PaymentResult(bool Success, string Message, Payment? Payment);

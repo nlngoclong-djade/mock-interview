@@ -1,54 +1,105 @@
-# Refactoring Assessment (C#) — Practice Repository
+# Mock Assessment 03 — Legacy Payment Refactoring and LRU Cache
 
-This is an original practice exercise. It is not Speechify code and is not based on their private assessment repository.
+This is an original Senior C# practice exercise. It is not based on any private assessment repository.
 
 ## Format
 
-- Time limit: 50 minutes
-- Task 1: about 30 minutes
-- Task 2: about 20 minutes
-- Deliverable: committed changes in this repository
+- Total time limit: **50 minutes**
+- Task 1: maximum **30 minutes**
+- Task 2: maximum **20 minutes**
+- Work only on `attempt/03`
+- Do not use AI assistance while the timer is running
+- Do not install additional packages
 
-Before starting, run:
+## Prepare the attempt branch
 
 ```bash
-dotnet run --project tests/LegacyPayments.Tests
+git fetch origin
+git switch mock/03-starter
+git pull
+git switch -c attempt/03
+git push -u origin attempt/03
 ```
 
-All checks should print `PASS`.
+Verify the starter before beginning:
 
-## Task 1 — Refactor the payment component
+```bash
+dotnet test tests/LegacyPayments.Tests
+```
 
-Refactor the legacy payment component to improve its structure, readability, maintainability, and separation of concerns.
+All tests must pass. Do not inspect or modify source code before creating the start marker.
+
+## Start marker
+
+Start the timer and immediately run:
+
+```bash
+git commit --allow-empty -m "START mock 03"
+```
+
+## Task 1 — Refactor the legacy payment component
+
+**Maximum time: 30 minutes**
+
+Refactor the payment component to improve readability, maintainability, and separation of concerns.
 
 Requirements:
 
-- Preserve all existing externally observable behavior.
-- Keep the public API compatible unless a change is clearly justified.
+- Preserve all externally observable behavior.
+- Preserve public API compatibility.
+- Keep case-insensitive payment-ID behavior.
+- Keep all existing tests passing.
 - Do not add external libraries.
 - Do not over-engineer the solution.
-- Keep the existing checks passing.
+- Do not begin Task 2 before committing Task 1.
 
-The instructions are intentionally ambiguous. Decide which improvements provide the most value within the time limit.
+The instructions are intentionally ambiguous. Prioritize the highest-value improvements possible within 30 minutes.
 
-## Task 2 — Integrate the LRU cache
+At completion—or exactly when 30 minutes expires—run:
 
-Integrate the provided `LruCache<TKey, TValue>` into the data layer.
+```bash
+git add .
+git commit -m "TASK 1 COMPLETE"
+```
+
+## Task 2 — Integrate the supplied LRU cache
+
+**Maximum time: 20 minutes**
+
+Integrate `LruCache<TKey, TValue>` into the payment data-access path.
 
 Requirements:
 
-- Frequently requested payments should avoid unnecessary reads from the underlying data store.
-- Creating or changing payment data must not leave stale cached values.
-- Missing payments must continue to behave exactly as they do now.
-- The cache capacity should be configurable; use a sensible default.
-- Do not modify the supplied LRU implementation unless you find a correctness bug.
-- Do not add external libraries.
+- Repeated lookups must avoid unnecessary underlying-store reads.
+- Saves must not leave stale cached values.
+- A failed underlying save must not make unpersisted data visible through cache.
+- Payment IDs remain case-insensitive and ignore surrounding whitespace.
+- Missing payments retain their existing behavior.
+- Callers cannot mutate persisted or cached payment state accidentally, including nested state.
+- Cache capacity is configurable with a sensible default.
+- Preserve the existing public API.
+- Do not modify the supplied LRU implementation unless it contains a correctness bug.
+- Keep all existing tests passing.
 
-## Submission checklist
+At completion—or exactly when the total 50 minutes expires—run:
 
-1. Run all checks.
-2. Review your diff for accidental behavior changes.
-3. Commit your work to Git.
-4. Stop when 50 minutes expires.
+```bash
+git add .
+git commit -m "TASK 2 COMPLETE"
+git push
+```
 
-When you finish, send the repository or a patch for review. Do not include a written explanation unless you want to simulate a follow-up interview.
+## Timing rules
+
+- `START mock 03` → `TASK 1 COMPLETE`: maximum **30:00**
+- `TASK 1 COMPLETE` → `TASK 2 COMPLETE`: maximum **20:00**
+- `START mock 03` → `TASK 2 COMPLETE`: maximum **50:00**
+- Marker names are case-sensitive and must match exactly.
+- Missing or incorrectly named markers fail timing verification.
+- Exceeding a limit by any amount fails that timing requirement.
+- Do not amend, squash, rebase, or alter timestamps.
+- Commits after `TASK 2 COMPLETE` are excluded.
+
+## Submission
+
+Push `attempt/03` and request a strict review.

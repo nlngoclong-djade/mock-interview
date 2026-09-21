@@ -1,17 +1,18 @@
 namespace LegacyPayments;
 
-public interface IPaymentDataStore
+public interface IPaymentStore
 {
     Payment? Load(string id);
     void Save(Payment payment);
 }
 
-public sealed class InMemoryPaymentDataStore : IPaymentDataStore
+public sealed class InMemoryPaymentStore : IPaymentStore
 {
-    private readonly Dictionary<string, Payment> _payments = new();
+    private readonly Dictionary<string, Payment> _payments = new(StringComparer.OrdinalIgnoreCase);
 
     public int LoadCount { get; private set; }
     public int SaveCount { get; private set; }
+    public bool FailNextSave { get; set; }
 
     public Payment? Load(string id)
     {
@@ -22,6 +23,13 @@ public sealed class InMemoryPaymentDataStore : IPaymentDataStore
     public void Save(Payment payment)
     {
         SaveCount++;
+
+        if (FailNextSave)
+        {
+            FailNextSave = false;
+            throw new InvalidOperationException("Simulated persistence failure");
+        }
+
         _payments[payment.Id] = Copy(payment);
     }
 
@@ -32,16 +40,17 @@ public sealed class InMemoryPaymentDataStore : IPaymentDataStore
         Amount = payment.Amount,
         Currency = payment.Currency,
         Status = payment.Status,
-        Fee = payment.Fee,
-        UpdatedAtUtc = payment.UpdatedAtUtc
+        ProcessingFee = payment.ProcessingFee,
+        UpdatedAtUtc = payment.UpdatedAtUtc,
+        AuditTrail = new List<string>(payment.AuditTrail)
     };
 }
 
 public class PaymentRepository
 {
-    private readonly IPaymentDataStore _store;
+    private readonly IPaymentStore _store;
 
-    public PaymentRepository(IPaymentDataStore store)
+    public PaymentRepository(IPaymentStore store)
     {
         _store = store;
     }
