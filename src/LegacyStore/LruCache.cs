@@ -1,4 +1,4 @@
-namespace LegacyPayments;
+namespace LegacyStore;
 
 public sealed class LruCache<TKey, TValue> where TKey : notnull
 {
