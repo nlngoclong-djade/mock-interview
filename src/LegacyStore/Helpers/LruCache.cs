@@ -1,4 +1,4 @@
-namespace LegacyStore;
+namespace LegacyStore.Helpers;
 
 public sealed class LruCache<TKey, TValue> where TKey : notnull
 {

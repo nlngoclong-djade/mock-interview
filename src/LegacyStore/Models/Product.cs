@@ -1,4 +1,4 @@
-namespace LegacyStore;
+namespace LegacyStore.Models;
 
 public sealed class Product
 {

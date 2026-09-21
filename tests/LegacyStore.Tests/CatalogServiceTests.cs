@@ -1,3 +1,9 @@
+using LegacyStore.DataStore.Implementation;
+using LegacyStore.DataStore.Interfaces;
+using LegacyStore.Helpers;
+using LegacyStore.Models;
+using LegacyStore.Repositories;
+using LegacyStore.Services;
 using Xunit;
 
 namespace LegacyStore.Tests;
@@ -118,7 +124,7 @@ public sealed class CatalogServiceTests
         decimal price = 25m)
     {
         var store = new InMemoryProductDataStore();
-        store.Save(new Product
+        store.Save(new Product()
         {
             Sku = "sku-1",
             Name = "Headphones",

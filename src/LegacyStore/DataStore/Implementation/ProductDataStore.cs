@@ -1,10 +1,8 @@
-namespace LegacyStore;
 
-public interface IProductDataStore
-{
-    Product? Load(string sku);
-    void Save(Product product);
-}
+using LegacyStore.DataStore.Interfaces;
+using LegacyStore.Models;
+
+namespace LegacyStore.DataStore.Implementation;
 
 public sealed class InMemoryProductDataStore : IProductDataStore
 {
@@ -34,24 +32,4 @@ public sealed class InMemoryProductDataStore : IProductDataStore
         Status = product.Status,
         UpdatedAtUtc = product.UpdatedAtUtc
     };
-}
-
-public class ProductRepository
-{
-    private readonly IProductDataStore _store;
-
-    public ProductRepository(IProductDataStore store)
-    {
-        _store = store;
-    }
-
-    public Product? Get(string sku)
-    {
-        return _store.Load(sku);
-    }
-
-    public void Save(Product product)
-    {
-        _store.Save(product);
-    }
 }
