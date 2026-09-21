@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegacyPayments", "src/LegacyPayments/LegacyPayments.csproj", "{B1A1135B-62C2-423D-BF95-1E44BE6D8631}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegacyPayments.Tests", "tests/LegacyPayments.Tests/LegacyPayments.Tests.csproj", "{297E0A51-26CD-46E2-A588-D29A631D845B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1A1135B-62C2-423D-BF95-1E44BE6D8631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1A1135B-62C2-423D-BF95-1E44BE6D8631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1A1135B-62C2-423D-BF95-1E44BE6D8631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1A1135B-62C2-423D-BF95-1E44BE6D8631}.Release|Any CPU.Build.0 = Release|Any CPU
+		{297E0A51-26CD-46E2-A588-D29A631D845B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{297E0A51-26CD-46E2-A588-D29A631D845B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{297E0A51-26CD-46E2-A588-D29A631D845B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{297E0A51-26CD-46E2-A588-D29A631D845B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
