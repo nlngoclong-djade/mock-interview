@@ -1,4 +1,7 @@
 using LegacyPayments;
+using LegacyPayments.Implementation;
+using LegacyPayments.Interface;
+using LegacyPayments.Repositories;
 
 var tests = new (string Name, Action Run)[]
 {
@@ -27,7 +30,8 @@ static (LegacyPaymentProcessor Processor, InMemoryPaymentDataStore Store, FakeSe
 {
     var store = new InMemoryPaymentDataStore();
     var sender = new FakeSender();
-    var processor = new LegacyPaymentProcessor(new PaymentRepository(store), sender, new FixedClock());
+    var fixedClock = new DateTime(2026, 9, 21, 0, 0, 0, DateTimeKind.Utc);
+    var processor = new LegacyPaymentProcessor(store, sender, fixedClock);
     return (processor, store, sender);
 }
 
@@ -111,11 +115,6 @@ static void Equal<T>(T expected, T actual)
 static void True(bool value)
 {
     if (!value) throw new Exception("expected true but was false");
-}
-
-sealed class FixedClock : IClock
-{
-    public DateTime UtcNow => new(2026, 9, 21, 0, 0, 0, DateTimeKind.Utc);
 }
 
 sealed class FakeSender : IReceiptSender

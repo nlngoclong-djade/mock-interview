@@ -1,31 +1,19 @@
+using LegacyPayments.Interface;
+using LegacyPayments.Repositories;
+
 namespace LegacyPayments;
-
-public interface IReceiptSender
-{
-    void Send(string email, string subject, string body);
-}
-
-public interface IClock
-{
-    DateTime UtcNow { get; }
-}
-
-public sealed class SystemClock : IClock
-{
-    public DateTime UtcNow => DateTime.UtcNow;
-}
 
 public class LegacyPaymentProcessor
 {
-    private PaymentRepository repo;
-    private IReceiptSender sender;
-    private IClock clock;
+    private readonly IPaymentDataStore _repo;
+    private readonly IReceiptSender _sender;
+    private readonly DateTime _clock;
 
-    public LegacyPaymentProcessor(PaymentRepository repo, IReceiptSender sender, IClock clock)
+    public LegacyPaymentProcessor(IPaymentDataStore repo, IReceiptSender sender, DateTime clock)
     {
-        this.repo = repo;
-        this.sender = sender;
-        this.clock = clock;
+        this._repo = repo;
+        this._sender = sender;
+        this._clock = clock;
     }
 
     public PaymentResult MakePayment(string id, string email, decimal amount, string currency, bool priorityCustomer)
@@ -36,7 +24,7 @@ public class LegacyPaymentProcessor
 
         var c = currency == null ? "" : currency.Trim().ToUpperInvariant();
         if (c != "USD" && c != "EUR" && c != "GBP") return new PaymentResult(false, "Unsupported currency", null);
-        if (repo.Get(id) != null) return new PaymentResult(false, "Payment already exists", null);
+        if (_repo.Load(id) != null) return new PaymentResult(false, "Payment already exists", null);
 
         decimal fee;
         if (c == "USD") fee = amount * 0.029m + 0.30m;
@@ -52,13 +40,13 @@ public class LegacyPaymentProcessor
         p.Currency = c;
         p.Status = amount >= 5000 ? "REVIEW" : "PAID";
         p.Fee = fee;
-        p.UpdatedAtUtc = clock.UtcNow;
-        repo.Save(p);
+        p.UpdatedAtUtc = _clock;
+        _repo.Save(p);
 
         if (p.Status == "PAID")
-            sender.Send(p.CustomerEmail, "Payment received", "Payment " + p.Id + " for " + p.Amount.ToString("0.00") + " " + p.Currency + " was received. Fee: " + p.Fee.ToString("0.00"));
+            _sender.Send(p.CustomerEmail, "Payment received", "Payment " + p.Id + " for " + p.Amount.ToString("0.00") + " " + p.Currency + " was received. Fee: " + p.Fee.ToString("0.00"));
         else
-            sender.Send(p.CustomerEmail, "Payment under review", "Payment " + p.Id + " is being reviewed.");
+            _sender.Send(p.CustomerEmail, "Payment under review", "Payment " + p.Id + " is being reviewed.");
 
         return new PaymentResult(true, p.Status == "PAID" ? "Payment completed" : "Payment requires review", p);
     }
@@ -67,34 +55,34 @@ public class LegacyPaymentProcessor
     {
         if (id == null || id.Trim() == "") return new PaymentResult(false, "Payment id is required", null);
         if (amount <= 0) return new PaymentResult(false, "Amount must be positive", null);
-        var p = repo.Get(id.Trim());
+        var p = _repo.Load(id.Trim());
         if (p == null) return new PaymentResult(false, "Payment not found", null);
         if (p.Status != "PAID") return new PaymentResult(false, "Only paid payments can be refunded", p);
         if (amount > p.Amount) return new PaymentResult(false, "Refund exceeds payment amount", p);
 
         p.Status = amount == p.Amount ? "REFUNDED" : "PARTIALLY_REFUNDED";
-        p.UpdatedAtUtc = clock.UtcNow;
-        repo.Save(p);
-        sender.Send(p.CustomerEmail, "Refund processed", "Refund of " + amount.ToString("0.00") + " " + p.Currency + " for payment " + p.Id + " was processed.");
+        p.UpdatedAtUtc = _clock;
+        _repo.Save(p);
+        _sender.Send(p.CustomerEmail, "Refund processed", "Refund of " + amount.ToString("0.00") + " " + p.Currency + " for payment " + p.Id + " was processed.");
         return new PaymentResult(true, "Refund completed", p);
     }
 
     public PaymentResult Cancel(string id)
     {
         if (id == null || id.Trim() == "") return new PaymentResult(false, "Payment id is required", null);
-        var p = repo.Get(id.Trim());
+        var p = _repo.Load(id.Trim());
         if (p == null) return new PaymentResult(false, "Payment not found", null);
         if (p.Status != "REVIEW") return new PaymentResult(false, "Only payments under review can be cancelled", p);
         p.Status = "CANCELLED";
-        p.UpdatedAtUtc = clock.UtcNow;
-        repo.Save(p);
-        sender.Send(p.CustomerEmail, "Payment cancelled", "Payment " + p.Id + " was cancelled.");
+        p.UpdatedAtUtc = _clock;
+        _repo.Save(p);
+        _sender.Send(p.CustomerEmail, "Payment cancelled", "Payment " + p.Id + " was cancelled.");
         return new PaymentResult(true, "Cancellation completed", p);
     }
 
     public Payment? Find(string id)
     {
         if (id == null || id.Trim() == "") return null;
-        return repo.Get(id.Trim());
+        return _repo.Load(id.Trim());
     }
 }

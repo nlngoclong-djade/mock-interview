@@ -1,11 +1,6 @@
-namespace LegacyPayments;
+using LegacyPayments.Interface;
 
-public interface IPaymentDataStore
-{
-    Payment? Load(string id);
-    void Save(Payment payment);
-}
-
+namespace LegacyPayments.Implementation;
 public sealed class InMemoryPaymentDataStore : IPaymentDataStore
 {
     private readonly Dictionary<string, Payment> _payments = new();
@@ -37,22 +32,3 @@ public sealed class InMemoryPaymentDataStore : IPaymentDataStore
     };
 }
 
-public class PaymentRepository
-{
-    private readonly IPaymentDataStore _store;
-
-    public PaymentRepository(IPaymentDataStore store)
-    {
-        _store = store;
-    }
-
-    public Payment? Get(string id)
-    {
-        return _store.Load(id);
-    }
-
-    public void Save(Payment payment)
-    {
-        _store.Save(payment);
-    }
-}
